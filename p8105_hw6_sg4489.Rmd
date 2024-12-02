@@ -61,18 +61,38 @@ summary_stats <- bootstrap_results %>%
 ```
 
 ```{r}
+ggplot(bootstrap_results, aes(x = r_squared)) + 
+  geom_density(fill = "#E69191", alpha = 0.5) + 
+  labs(
+   title = "Distribution of R_squared from Bootstrap Samples",
+    x = "r_squared",
+    y = "Density"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = .5))
+```
+
+The plot shows the distribution of r_squared values from 5000 bootstrap samples:  
+1. Symmetry: The distribution is roughly normal, slightly left-skewed.  
+2. Consistency: tightly clustered between 0.88 and 0.94. This suggests that the fitted model can explain most of the variance in the response variable in the bootstrap sample.  
+3. High Predictive Power: The peak near 0.91 indicates strong explanatory power.   
+
+```{r}
 ggplot(bootstrap_results, aes(x = log_beta)) + 
-  geom_histogram(binwidth = 0.1, fill = "green", alpha = 0.5) + 
+  geom_density(fill = "#92B5CA", alpha = 0.5) + 
   labs(
    title = "Distribution of log(β0 * β1) from Bootstrap Samples",
     x = "log(β0 * β1)",
-    y = "Frequency"
-  )
+    y = "Density"
+  ) + 
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = .5))
 ```
+The density curve is approximately symmetric and bell-shaped, suggesting the distribution of log(β₀ * β₁) is roughly normal.  
 
-The model is consistent and does not exhibit much variation in $\beta_0$ and $\beta_1$ across the bootstrap samples, which implies reliability in the estimation of this relationship.  
+The model is consistent and does not exhibit much variation in $\beta_0$ and $\beta_1$ across the bootstrap samples, which implies reliability in the estimation of this relationship. And the peak is around the mean.   
 
-The narrow distribution means that the estimated relationship between *tmin* and *tmax* (via $\log(\beta_0 \cdot \beta_1)$) is robust and unlikely to vary much with different data samples.  
+The narrow distribution means that the estimated relationship between *tmin* and *tmax* is robust and unlikely to vary much with different data samples.  
 
 ```{r}
 lower_ci_rsquare <- round(summary_stats[1, "r_squared_ci"], 3)
@@ -121,7 +141,7 @@ baltimore_results <- tidy(baltimore_model, exponentiate = TRUE, conf.int = TRUE)
 
 # Extract adjusted odds ratio for male vs female victims
 male_vs_female <- baltimore_results %>% 
-  filter(term == "victim_sexmale") 
+  filter(term == "victim_sexMale") 
 
 odds_ratio_male_vs_female <- male_vs_female %>% pull(estimate)
 conf_low_male_vs_female <- male_vs_female %>% pull(conf.low)
@@ -130,7 +150,7 @@ conf_high_male_vs_female <- male_vs_female %>% pull(conf.high)
 
 **Adjusted Odds Ratio**: `r round(odds_ratio_male_vs_female, 3)`   
 A value of 0.43 means that male victims are 57% less likely to have their cases resolved.   
-**95% Confidence Interval**: (`r round(conf_low_male_vs_female, 3)`, `r round(conf_high_male_vs_female, 3)`)  
+**95% Confidence Interval**: (`r round(conf_low_male_vs_female, 3)`, `r round(conf_high_male_vs_female, 3)`)    
 
 ```{r, warning=FALSE}
 # Group data by city and fit glm for each city
